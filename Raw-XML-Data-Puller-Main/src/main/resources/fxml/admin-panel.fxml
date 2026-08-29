@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView?>
+
+<VBox xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.walgreens.rawxmldatapuller.controller.AdminController"
+      styleClass="root-container" spacing="0">
+
+    <!-- Tabs -->
+    <TabPane VBox.vgrow="ALWAYS" tabClosingPolicy="UNAVAILABLE" styleClass="admin-tab-pane">
+
+        <!-- ════════════════ TAB 1: USERS ════════════════ -->
+        <Tab text="Users">
+            <VBox spacing="0">
+
+                <!-- Toolbar -->
+                <HBox styleClass="admin-toolbar" spacing="10" alignment="CENTER_LEFT">
+                    <padding><Insets top="12" right="16" bottom="12" left="16"/></padding>
+                    <Label text="User Management" styleClass="card-title"/>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Label fx:id="userListStatus" styleClass="save-status"/>
+
+                    <Button text="Refresh" styleClass="refresh-db-btn" graphicTextGap="6"
+                            onAction="#handleRefreshUsers">
+                        <graphic><FontAwesomeIconView glyphName="REFRESH" size="12"/></graphic>
+                    </Button>
+                    <Button text="Add User" styleClass="search-btn" graphicTextGap="6"
+                            onAction="#handleAddUser">
+                        <graphic><FontAwesomeIconView glyphName="USER_PLUS" size="12"/></graphic>
+                    </Button>
+                    <Button fx:id="editUserBtn" text="Edit" styleClass="export-btn" graphicTextGap="6"
+                            onAction="#handleEditUser">
+                        <graphic><FontAwesomeIconView glyphName="PENCIL" size="12"/></graphic>
+                    </Button>
+                    <Button fx:id="resetPwdBtn" text="Reset Password" styleClass="export-btn" graphicTextGap="6"
+                            onAction="#handleResetPassword">
+                        <graphic><FontAwesomeIconView glyphName="KEY" size="12"/></graphic>
+                    </Button>
+                    <Button fx:id="deleteUserBtn" text="Delete" styleClass="danger-btn" graphicTextGap="6"
+                            onAction="#handleDeleteUser">
+                        <graphic><FontAwesomeIconView glyphName="TRASH" size="12"/></graphic>
+                    </Button>
+                </HBox>
+
+                <!-- Search bar -->
+                <HBox styleClass="admin-search-bar" alignment="CENTER_LEFT" spacing="8">
+                    <padding><Insets top="8" right="16" bottom="8" left="16"/></padding>
+                    <TextField fx:id="searchField" styleClass="input-field"
+                               promptText="Search by username, name, email or role…"
+                               HBox.hgrow="ALWAYS"/>
+                </HBox>
+
+                <!-- Table -->
+                <TableView fx:id="usersTable" VBox.vgrow="ALWAYS" styleClass="admin-table">
+                    <columns>
+                        <TableColumn fx:id="colUsername"  text="Username"   minWidth="110"/>
+                        <TableColumn fx:id="colFullName"  text="Full Name"  minWidth="140"/>
+                        <TableColumn fx:id="colEmail"     text="Email"      minWidth="180"/>
+                        <TableColumn fx:id="colRole"      text="Role"       minWidth="70"/>
+                        <TableColumn fx:id="colActive"    text="Active"     minWidth="60"/>
+                        <TableColumn fx:id="colLastLogin" text="Last Login" minWidth="130"/>
+                    </columns>
+                    <placeholder><Label text="No users found." styleClass="db-status-text"/></placeholder>
+                </TableView>
+
+                <!-- Users pagination -->
+                <HBox styleClass="admin-toolbar" alignment="CENTER_LEFT" spacing="8">
+                    <padding><Insets top="6" right="16" bottom="6" left="16"/></padding>
+                    <Label fx:id="userPageInfo" styleClass="db-status-text"/>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Button fx:id="userPrevBtn" text="◀  Prev" styleClass="refresh-db-btn"
+                            onAction="#handleUserPrevPage"/>
+                    <Button fx:id="userNextBtn" text="Next  ▶" styleClass="refresh-db-btn"
+                            onAction="#handleUserNextPage"/>
+                </HBox>
+
+            </VBox>
+        </Tab>
+
+        <!-- ════════════════ TAB 2: LOGIN HISTORY ════════════════ -->
+        <Tab text="Login History">
+            <VBox spacing="0">
+
+                <!-- Toolbar -->
+                <HBox styleClass="admin-toolbar" spacing="10" alignment="CENTER_LEFT">
+                    <padding><Insets top="12" right="16" bottom="12" left="16"/></padding>
+                    <Label text="Login History" styleClass="card-title"/>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Label fx:id="historyStatus" styleClass="save-status"/>
+                    <Button text="Refresh" styleClass="refresh-db-btn" graphicTextGap="6"
+                            onAction="#handleRefreshHistory">
+                        <graphic><FontAwesomeIconView glyphName="REFRESH" size="12"/></graphic>
+                    </Button>
+                </HBox>
+
+                <Label text="Records older than 6 months are automatically removed on each login."
+                       styleClass="card-subtitle" style="-fx-padding: 6 16 6 16;"/>
+
+                <!-- History search -->
+                <HBox styleClass="admin-search-bar" alignment="CENTER_LEFT" spacing="8">
+                    <padding><Insets top="8" right="16" bottom="8" left="16"/></padding>
+                    <TextField fx:id="historySearchField" styleClass="input-field"
+                               promptText="Search by username or full name…"
+                               HBox.hgrow="ALWAYS"/>
+                </HBox>
+
+                <!-- History table -->
+                <TableView fx:id="historyTable" VBox.vgrow="ALWAYS" styleClass="admin-table">
+                    <columns>
+                        <TableColumn fx:id="histColUsername"  text="Username"   minWidth="120"/>
+                        <TableColumn fx:id="histColFullName"  text="Full Name"  minWidth="160"/>
+                        <TableColumn fx:id="histColLoginTime" text="Login Time" minWidth="160"/>
+                    </columns>
+                    <placeholder><Label text="No login history found." styleClass="db-status-text"/></placeholder>
+                </TableView>
+
+                <!-- History pagination -->
+                <HBox styleClass="admin-toolbar" alignment="CENTER_LEFT" spacing="8">
+                    <padding><Insets top="6" right="16" bottom="6" left="16"/></padding>
+                    <Label fx:id="histPageInfo" styleClass="db-status-text"/>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Button fx:id="histPrevBtn" text="◀  Prev" styleClass="refresh-db-btn"
+                            onAction="#handleHistPrevPage"/>
+                    <Button fx:id="histNextBtn" text="Next  ▶" styleClass="refresh-db-btn"
+                            onAction="#handleHistNextPage"/>
+                </HBox>
+
+            </VBox>
+        </Tab>
+
+        <!-- ════════════════ TAB 3: SOP / LINKS ════════════════ -->
+        <Tab text="SOP">
+            <ScrollPane fitToWidth="true" styleClass="content-scroll" VBox.vgrow="ALWAYS">
+                <VBox spacing="16">
+                    <padding><Insets top="20" right="24" bottom="20" left="24"/></padding>
+
+                    <!-- Application Links -->
+                    <VBox styleClass="card" spacing="12">
+                        <Label text="Application Links" styleClass="card-title"/>
+                        <HBox spacing="10" alignment="CENTER_LEFT">
+                            <Label text="SOP Documentation:" styleClass="field-label" minWidth="160"/>
+                            <TextField fx:id="sopLink" styleClass="input-field" HBox.hgrow="ALWAYS"/>
+                        </HBox>
+                        <HBox spacing="10" alignment="CENTER_LEFT">
+                            <Label text="Incident (eRx Team):" styleClass="field-label" minWidth="160"/>
+                            <TextField fx:id="incidentLink" styleClass="input-field" HBox.hgrow="ALWAYS"/>
+                        </HBox>
+                    </VBox>
+
+                    <!-- Save row -->
+                    <HBox alignment="CENTER_RIGHT" spacing="12">
+                        <Label fx:id="configSaveStatus" styleClass="save-status"/>
+                        <Button text="Save Configuration" styleClass="search-btn" graphicTextGap="6"
+                                onAction="#handleSaveConfiguration">
+                            <graphic><FontAwesomeIconView glyphName="FLOPPY_ALT" size="12"/></graphic>
+                        </Button>
+                    </HBox>
+                </VBox>
+            </ScrollPane>
+        </Tab>
+
+    </TabPane>
+
+</VBox>

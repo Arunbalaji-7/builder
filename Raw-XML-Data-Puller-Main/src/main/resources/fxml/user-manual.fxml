@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<!--
+  In-application User Manual — fully static, no controller required.
+  Uses the same card / field-label / card-subtitle CSS classes as the rest of the app.
+-->
+<VBox xmlns:fx="http://javafx.com/fxml/1"
+      styleClass="root-container" spacing="0">
+
+    <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS" styleClass="content-scroll">
+        <VBox spacing="18" styleClass="content-area">
+            <padding><Insets top="20" right="24" bottom="28" left="24"/></padding>
+
+            <!-- ── Page header ── -->
+            <VBox spacing="4">
+                <Label text="User Manual" styleClass="card-title"
+                       style="-fx-font-size: 20px; -fx-font-weight: bold;"/>
+                <Label text="Raw XML Data Puller  ·  Step-by-step guide for all users"
+                       styleClass="card-subtitle"/>
+            </VBox>
+
+            <!-- ══ 1. Overview ══ -->
+            <VBox styleClass="card" spacing="10">
+                <Label text="1. Overview" styleClass="card-title"/>
+                <Label styleClass="card-subtitle" wrapText="true"
+                       text="The Raw XML Data Puller lets you retrieve raw prescription XML documents from Walgreens pharmacy systems. You can search by eRx Message ID or by Rx Number and Store Number. Results are displayed with syntax highlighting and can be copied or exported."/>
+            </VBox>
+
+            <!-- ══ 2. Logging In ══ -->
+            <VBox styleClass="card" spacing="10">
+                <Label text="2. Logging In" styleClass="card-title"/>
+
+                <Label styleClass="field-label" text="Standard Login"/>
+                <Label styleClass="card-subtitle" wrapText="true"
+                       text="Enter your One ID (username) and password, then click Sign In or press Enter."/>
+
+                <Separator/>
+
+                <Label styleClass="field-label" text="First-Time Login (Temporary Password)"/>
+                <Label styleClass="card-subtitle" wrapText="true"
+                       text="If your account was just created or your password was reset by an admin, you will receive a temporary password by email. When you log in with that temporary password, the application will immediately prompt you to set a permanent password before you can proceed. The new password must be at least 8 characters and include uppercase, lowercase, a number, and a special character."/>
+
+                <Separator/>
+
+                <Label styleClass="field-label" text="Session Timeout"/>
+                <Label styleClass="card-subtitle" wrapText="true"
+                       text="Your session expires automatically after 2 minutes of inactivity. You will be returned to the login screen and a message will be shown. Simply sign in again to continue."/>
+            </VBox>
+
+            <!-- ══ 3. Searching by eRx Message ID ══ -->
+            <VBox styleClass="card" spacing="10">
+                <Label text="3. Searching by eRx Message ID" styleClass="card-title"/>
+
+                <Label styleClass="card-subtitle" wrapText="true"
+                       text="Use this mode when you have one or more eRx Message IDs (SST_MSG_ID values)."/>
+
+                <VBox spacing="6">
+                    <Label styleClass="field-label" text="Step 1 - Select search mode"/>
+                    <Label styleClass="card-subtitle" wrapText="true"
+                           text="Make sure the 'eRx Message ID' radio button is selected (this is the default)."/>
+
+                    <Label styleClass="field-label" text="Step 2 - Enter the Message ID(s)"/>
+                    <Label styleClass="card-subtitle" wrapText="true"
+                           text="Type or paste the eRx Message ID into the input field. For multiple IDs, separate them with commas — for example:  MSG001, MSG002, MSG003"/>
+
+                    <Label styleClass="field-label" text="Step 3 - Click Search"/>
+                    <Label styleClass="card-subtitle" wrapText="true"
+                           text="Click the Search button or press Enter. A loading indicator will appear while the data is being retrieved. Results appear in the panel below once the search completes."/>
+                </VBox>
+            </VBox>
+
+            <!-- ══ 4. Searching by Rx Number + Store Number ══ -->
+            <VBox styleClass="card" spacing="10">
+                <Label text="4. Searching by Rx Number + Store Number" styleClass="card-title"/>
+
+                <Label styleClass="card-subtitle" wrapText="true"
+                       text="Use this mode when you have the prescription Rx Number and the dispensing store's Store Number but not the eRx Message ID."/>
+
+                <VBox spacing="6">
+                    <Label styleClass="field-label" text="Step 1 - Switch search mode"/>
+                    <Label styleClass="card-subtitle" wrapText="true"
+                           text="Click the 'Rx Nbr + Store Nbr' radio button."/>
+
+                    <Label styleClass="field-label" text="Step 2 - Enter Rx Number and Store Number"/>
+                    <Label styleClass="card-subtitle" wrapText="true"
+                           text="Fill in both fields. Both are required — the search cannot proceed with only one."/>
+
+                    <Label styleClass="field-label" text="Step 3 - Click Search"/>
+                    <Label styleClass="card-subtitle" wrapText="true"
+                           text="Click Search or press Enter. The system will look up the associated Message ID automatically and then retrieve the XML data."/>
+                </VBox>
+            </VBox>
+
+            <!-- ══ 5. During a Search — Additional Prompts ══ -->
+            <VBox styleClass="card" spacing="10">
+                <Label text="5. During a Search - Additional Prompts" styleClass="card-title"/>
+
+                <Label styleClass="card-subtitle" wrapText="true"
+                       text="Depending on the data available in the systems, you may see one or two pop-up dialogs during the search. These appear automatically when additional information is needed."/>
+
+                <VBox spacing="8">
+                    <Label styleClass="field-label" text="Rx Number and Store Number prompt"/>
+                    <Label styleClass="card-subtitle" wrapText="true"
+                           text="If you searched by eRx Message ID and the system cannot automatically resolve the associated Rx/Store details, a dialog will ask you to enter them manually. Provide both values and click Continue, or Cancel to stop the search."/>
+
+                    <Separator/>
+
+                    <Label styleClass="field-label" text="Rx Fill Date prompt"/>
+                    <Label styleClass="card-subtitle" wrapText="true"
+                           text="If the XML file cannot be located using database records alone, a dialog will ask for the Rx fill date. Select the date from the calendar or type it in MM/DD/YYYY format, then click Continue. This allows the system to construct the file path directly and search for the XML on the server."/>
+
+                    <Separator/>
+
+                    <Label styleClass="field-label" text="SSH Credentials prompt  (USER role only)"/>
+                    <Label styleClass="card-subtitle" wrapText="true"
+                           text="If your account is the USER role, a dialog will ask for your One ID and password when server-side file access is required. Enter your credentials and click Connect. The credentials are used for this search only and are not stored permanently."/>
+                    <Label styleClass="card-subtitle" wrapText="true"
+                           text="If your account is the BUSINESS or ADMIN role, SSH access is handled automatically — no prompt will appear."/>
+                </VBox>
+            </VBox>
+
+            <!-- ══ 6. Viewing Results ══ -->
+            <VBox styleClass="card" spacing="10">
+                <Label text="6. Viewing Results" styleClass="card-title"/>
+
+                <VBox spacing="6">
+                    <Label styleClass="field-label" text="Result tabs"/>
+                    <Label styleClass="card-subtitle" wrapText="true"
+                           text="Each successful result opens in a separate tab below the search form. Tab titles show the Message ID or Rx/Store label. When searching for multiple IDs at once, each successful result gets its own tab. You can click between tabs to compare results."/>
+
+                    <Label styleClass="field-label" text="Syntax highlighting"/>
+                    <Label styleClass="card-subtitle" wrapText="true"
+                           text="The XML is displayed with colour-coded syntax highlighting. Element names, attribute names, attribute values, and text content each have a distinct colour. Use the Night Vision / Light Vision toggle in the sidebar to switch between dark and light themes — the XML highlighting updates automatically."/>
+
+                    <Label styleClass="field-label" text="Clearing results"/>
+                    <Label styleClass="card-subtitle" wrapText="true"
+                           text="Click the Clear button in the output toolbar to remove all open result tabs. The Clear All button in the search form additionally clears the input fields as well."/>
+                </VBox>
+            </VBox>
+
+            <!-- ══ 7. Exporting and Copying Data ══ -->
+            <VBox styleClass="card" spacing="10">
+                <Label text="7. Exporting and Copying Data" styleClass="card-title"/>
+
+                <Label styleClass="card-subtitle" wrapText="true"
+                       text="The toolbar above the result tabs provides three ways to save or share the active tab's XML:"/>
+
+                <VBox spacing="8">
+                    <Label styleClass="field-label" text="Copy"/>
+                    <Label styleClass="card-subtitle" wrapText="true"
+                           text="Copies the raw XML of the currently selected tab to your clipboard. You can then paste it into a text editor, email, or any other application. The button briefly shows '✓ Copied!' to confirm."/>
+
+                    <Label styleClass="field-label" text="Export .txt"/>
+                    <Label styleClass="card-subtitle" wrapText="true"
+                           text="Opens a Save dialog so you can save the XML as a plain text file (.txt). This is useful when sharing with systems that do not accept .xml files."/>
+
+                    <Label styleClass="field-label" text="Export .xml"/>
+                    <Label styleClass="card-subtitle" wrapText="true"
+                           text="Opens a Save dialog so you can save the XML as a properly typed XML file (.xml). Use this when importing into tools that expect XML format."/>
+                </VBox>
+            </VBox>
+
+            <!-- ══ 8. When Data Cannot Be Retrieved ══ -->
+            <VBox styleClass="card" spacing="10">
+                <Label text="8. When Data Cannot Be Retrieved" styleClass="card-title"/>
+
+                <Label styleClass="card-subtitle" wrapText="true"
+                       text="If all automated retrieval attempts fail and no result is found, a message panel will appear below the search form."/>
+
+                <VBox spacing="6">
+                    <Label styleClass="field-label" text="View SOP Documentation  (USER role only)"/>
+                    <Label styleClass="card-subtitle" wrapText="true"
+                           text="Opens the Standard Operating Procedure document for manual retrieval steps."/>
+
+                    <Label styleClass="field-label" text="Create Incident with eRx Team"/>
+                    <Label styleClass="card-subtitle" wrapText="true"
+                           text="Opens the incident creation form so you can raise a ticket with the eRx team. Include the eRx Message ID or Rx/Store details, the date range searched, and any error information visible on screen."/>
+                </VBox>
+            </VBox>
+
+            <!-- ══ 9. Changing Your Password ══ -->
+            <VBox styleClass="card" spacing="10">
+                <Label text="9. Changing Your Password" styleClass="card-title"/>
+
+                <VBox spacing="6">
+                    <Label styleClass="field-label" text="From the Profile page"/>
+                    <Label styleClass="card-subtitle" wrapText="true"
+                           text="Click Profile in the sidebar, then use the Change Password section. You will need to enter your current password followed by the new password twice to confirm. The new password must satisfy all the strength criteria shown on screen."/>
+
+                    <Label styleClass="field-label" text="Forgotten password / temporary password"/>
+                    <Label styleClass="card-subtitle" wrapText="true"
+                           text="If you have forgotten your password or need it reset, contact your application administrator. They will trigger a password reset which generates a new temporary password and emails it to your registered address. Use that temporary password to log in, and you will be prompted to set a new permanent password immediately."/>
+                </VBox>
+            </VBox>
+
+            <!-- ══ 10. Theme ══ -->
+            <VBox styleClass="card" spacing="10">
+                <Label text="10. Night Vision / Light Vision" styleClass="card-title"/>
+                <Label styleClass="card-subtitle" wrapText="true"
+                       text="Use the Night Vision / Light Vision button at the bottom of the sidebar to toggle the application theme. Night Vision uses a dark colour scheme suited to low-light environments. Light Vision uses a light colour scheme. The XML syntax highlighting in result tabs also updates to match the selected theme."/>
+            </VBox>
+
+            <!-- ══ 11. Tips ══ -->
+            <VBox styleClass="card" spacing="10">
+                <Label text="11. Tips and Shortcuts" styleClass="card-title"/>
+
+                <VBox spacing="6">
+                    <Label styleClass="field-label" text="Batch search"/>
+                    <Label styleClass="card-subtitle" wrapText="true"
+                           text="When searching by eRx Message ID you can enter up to as many IDs as you need, separated by commas. Each ID is searched in sequence and each successful result opens in its own tab."/>
+
+                    <Label styleClass="field-label" text="Press Enter to search"/>
+                    <Label styleClass="card-subtitle" wrapText="true"
+                           text="After typing in the search field, pressing Enter triggers the search — you do not have to click the Search button."/>
+
+                    <Label styleClass="field-label" text="DB Status bar  (USER role)"/>
+                    <Label styleClass="card-subtitle" wrapText="true"
+                           text="The status bar at the top shows the connection status of the eRx, IC+, and Vision databases. Click Refresh to re-test connectivity. A green dot means the database is reachable; a red dot means it is currently unavailable."/>
+
+                    <Label styleClass="field-label" text="Navigating between pages"/>
+                    <Label styleClass="card-subtitle" wrapText="true"
+                           text="Use the sidebar on the left to navigate between Search, Profile, User Manual, and (for admins) the Admin panel. Your search results are preserved while you visit other pages and will still be there when you return to the Search page."/>
+                </VBox>
+            </VBox>
+
+        </VBox>
+    </ScrollPane>
+
+</VBox>

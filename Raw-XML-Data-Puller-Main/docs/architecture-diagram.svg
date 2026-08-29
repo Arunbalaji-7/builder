@@ -1,0 +1,89 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="760" viewBox="0 0 1200 760" role="img" aria-labelledby="title desc">
+  <title id="title">Raw XML Data Puller Architecture Diagram</title>
+  <desc id="desc">Architecture showing the desktop application, configuration sources, mail API, SMTP relay, recipient mailbox, and database dependencies.</desc>
+  <defs>
+    <style>
+      .bg { fill: #f7f4ee; }
+      .title { font: 700 28px Segoe UI, Arial, sans-serif; fill: #1e2a33; }
+      .subtitle { font: 400 14px Segoe UI, Arial, sans-serif; fill: #53636f; }
+      .group { fill: #fffaf2; stroke: #d8c8af; stroke-width: 2; rx: 18; }
+      .box { fill: #ffffff; stroke: #506575; stroke-width: 2; rx: 14; }
+      .box2 { fill: #eef7f7; stroke: #3f7c7a; stroke-width: 2; rx: 14; }
+      .box3 { fill: #fdf1e7; stroke: #b3692d; stroke-width: 2; rx: 14; }
+      .box4 { fill: #eef0fb; stroke: #5164b8; stroke-width: 2; rx: 14; }
+      .h { font: 700 18px Segoe UI, Arial, sans-serif; fill: #1f2a30; }
+      .p { font: 400 13px Segoe UI, Arial, sans-serif; fill: #33424d; }
+      .small { font: 400 12px Segoe UI, Arial, sans-serif; fill: #52616d; }
+      .arrow { stroke: #475a67; stroke-width: 2.5; fill: none; marker-end: url(#m); }
+      .dashed { stroke-dasharray: 8 7; }
+      .label { font: 600 12px Segoe UI, Arial, sans-serif; fill: #344651; }
+    </style>
+    <marker id="m" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#475a67"/>
+    </marker>
+  </defs>
+
+  <rect class="bg" x="0" y="0" width="1200" height="760"/>
+  <text class="title" x="50" y="54">Raw XML Data Puller Architecture</text>
+  <text class="subtitle" x="50" y="82">Desktop app uses a central mail API instead of direct SMTP from client machines.</text>
+
+  <rect class="group" x="40" y="110" width="500" height="580"/>
+  <text class="h" x="65" y="145">Desktop Tier</text>
+
+  <rect class="box" x="70" y="175" width="440" height="110" rx="14"/>
+  <text class="h" x="92" y="210">Raw XML Data Puller Desktop App</text>
+  <text class="p" x="92" y="236">JavaFX UI, AdminController, MailService HTTP client</text>
+  <text class="p" x="92" y="258">Sends form fields: mail_from, mail_to, subject, body</text>
+
+  <rect class="box4" x="70" y="330" width="200" height="110" rx="14"/>
+  <text class="h" x="92" y="365">application.properties</text>
+  <text class="p" x="92" y="391">mail.server.api</text>
+  <text class="p" x="92" y="413">mail.from</text>
+
+  <rect class="box4" x="310" y="330" width="200" height="110" rx="14"/>
+  <text class="h" x="332" y="365">MySQL app_config</text>
+  <text class="p" x="332" y="391">Optional runtime overrides</text>
+  <text class="p" x="332" y="413">Loaded through ConfigLoader</text>
+
+  <rect class="box" x="70" y="495" width="440" height="150" rx="14"/>
+  <text class="h" x="92" y="530">Primary Data Services</text>
+  <text class="p" x="92" y="556">Oracle DB access via SSH tunnel</text>
+  <text class="p" x="92" y="578">MySQL authentication and configuration storage</text>
+  <text class="p" x="92" y="600">Mail sending no longer uses SMTP sockets in desktop code</text>
+
+  <rect class="group" x="610" y="110" width="550" height="580"/>
+  <text class="h" x="635" y="145">Server / Integration Tier</text>
+
+  <rect class="box2" x="650" y="190" width="470" height="110" rx="14"/>
+  <text class="h" x="672" y="225">eRx Mail Server WAR</text>
+  <text class="p" x="672" y="251">Endpoint: /erx-mail-server/api/send-mail</text>
+  <text class="p" x="672" y="273">Accepts x-www-form-urlencoded POST requests</text>
+
+  <rect class="box3" x="650" y="370" width="210" height="110" rx="14"/>
+  <text class="h" x="672" y="405">SMTP Relay</text>
+  <text class="p" x="672" y="431">corpsmtprelay.walgreens.com</text>
+  <text class="p" x="672" y="453">Port 25</text>
+
+  <rect class="box3" x="910" y="370" width="210" height="110" rx="14"/>
+  <text class="h" x="932" y="405">Recipient Mailbox</text>
+  <text class="p" x="932" y="431">End user receives</text>
+  <text class="p" x="932" y="453">credentials email</text>
+
+  <rect class="box2" x="650" y="540" width="470" height="105" rx="14"/>
+  <text class="h" x="672" y="575">Operational Boundary</text>
+  <text class="p" x="672" y="601">Relay defaults and future mail policy changes stay server-side.</text>
+  <text class="p" x="672" y="623">Desktop clients only need HTTP access to the API endpoint.</text>
+
+  <path class="arrow" d="M 290 285 L 290 320"/>
+  <text class="label" x="302" y="310">load config</text>
+  <path class="arrow" d="M 270 385 L 305 385"/>
+  <text class="label" x="275" y="372">optional override</text>
+  <path class="arrow" d="M 510 230 L 640 230"/>
+  <text class="label" x="543" y="216">HTTP POST</text>
+  <path class="arrow" d="M 755 300 L 755 360"/>
+  <text class="label" x="772" y="336">server-side SMTP</text>
+  <path class="arrow" d="M 860 425 L 900 425"/>
+  <text class="label" x="866" y="410">deliver</text>
+  <path class="arrow dashed" d="M 510 570 L 640 570"/>
+  <text class="label" x="535" y="555">DB / SSH services continue separately</text>
+</svg>

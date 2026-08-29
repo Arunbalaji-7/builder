@@ -1,0 +1,433 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.walgreens</groupId>
+    <artifactId>Raw-Xml-Data-Puller</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <name>Raw-Xml-Data-Puller</name>
+    <packaging>jar</packaging>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.release>21</maven.compiler.release>
+        <junit.version>5.12.1</junit.version>
+        <javafx.version>21.0.12</javafx.version>
+        <!-- Path to javafx-jmods-21.0.12 folder. Override: mvn package -Djavafx.jmods=C:/your/path -->
+        <javafx.jmods>C:/javafx-jmods-21.0.12</javafx.jmods>
+        <moditect.version>1.2.2.Final</moditect.version>
+        <proguard.plugin.version>2.6.1</proguard.plugin.version>
+        <!-- proguard-core version must match what proguard-base was built against -->
+        <proguard.core.version>9.1.4</proguard.core.version>
+        <proguard.base.version>7.4.2</proguard.base.version>
+    </properties>
+
+    <dependencies>
+        <!-- JavaFX 21 cross-platform JARs (native libs supplied by jmods at link time) -->
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-controls</artifactId>
+            <version>${javafx.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-fxml</artifactId>
+            <version>${javafx.version}</version>
+        </dependency>
+
+        <!-- Oracle JDBC: automatic module com.oracle.database.jdbc -->
+        <dependency>
+            <groupId>com.oracle.database.jdbc</groupId>
+            <artifactId>ojdbc11</artifactId>
+            <version>21.9.0.0</version>
+        </dependency>
+
+        <!-- JSch: named module via Multi-Release JAR (module-info in META-INF/versions/9) -->
+        <dependency>
+            <groupId>com.github.mwiede</groupId>
+            <artifactId>jsch</artifactId>
+            <version>0.2.16</version>
+        </dependency>
+
+        <!-- MySQL: automatic module mysql.connector.j; moditect renames to com.mysql.cj -->
+        <dependency>
+            <groupId>com.mysql</groupId>
+            <artifactId>mysql-connector-j</artifactId>
+            <version>8.3.0</version>
+        </dependency>
+
+        <!-- FontAwesomeFX: both are named modules -->
+        <dependency>
+            <groupId>de.jensd</groupId>
+            <artifactId>fontawesomefx-fontawesome</artifactId>
+            <version>4.7.0-9.1.2</version>
+        </dependency>
+        <dependency>
+            <groupId>de.jensd</groupId>
+            <artifactId>fontawesomefx-commons</artifactId>
+            <version>9.1.2</version>
+        </dependency>
+
+<!-- Logging: named modules -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>2.0.9</version>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>1.4.11</version>
+        </dependency>
+
+        <!-- Test scope -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+
+            <!-- STEP 1: Compiler at Java 21 (module-aware; module-info.java present in src) -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.13.0</version>
+                <configuration>
+                    <release>21</release>
+                    <!-- Suppress automatic-module instability warning from module-info.java -->
+                    <compilerArgs>
+                        <arg>-Xlint:-module</arg>
+                    </compilerArgs>
+                </configuration>
+            </plugin>
+
+            <!-- STEP 2: Create plain app JAR (no shading) -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.4.2</version>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <mainClass>com.walgreens.rawxmldatapuller.Launcher</mainClass>
+                        </manifest>
+                    </archive>
+                </configuration>
+            </plugin>
+
+            <!-- STEP 3: Copy runtime deps to target/modules (prepare-package phase).
+                 JavaFX excluded because jlink gets it from javafx-jmods-21.0.12 directly. -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>3.7.1</version>
+                <executions>
+                    <execution>
+                        <id>copy-runtime-deps</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/modules</outputDirectory>
+                            <includeScope>runtime</includeScope>
+                            <excludeGroupIds>org.openjfx,org.junit.jupiter,org.junit.platform,org.opentest4j,org.apiguardian</excludeGroupIds>
+                            <excludeClassifiers>sources,javadoc</excludeClassifiers>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- STEP 4: ProGuard — processes app JAR only (deps are library JARs).
+                 Rules in proguard.cfg: dontshrink + dontobfuscate (safe for FXML reflection).
+                 Output: target/${finalName}-proguarded.jar, picked up by moditect next.
+                 Uses wvengen plugin (Maven Central) with proguard-base 7.4.2 already in local repo. -->
+            <plugin>
+                <groupId>com.github.wvengen</groupId>
+                <artifactId>proguard-maven-plugin</artifactId>
+                <version>${proguard.plugin.version}</version>
+                <dependencies>
+                    <!-- Override to use ProGuard 7.4.2 (Java 21 support); both JARs are in local repo -->
+                    <dependency>
+                        <groupId>com.guardsquare</groupId>
+                        <artifactId>proguard-base</artifactId>
+                        <version>${proguard.base.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>com.guardsquare</groupId>
+                        <artifactId>proguard-core</artifactId>
+                        <version>9.1.4</version>
+                    </dependency>
+                </dependencies>
+                <executions>
+                    <execution>
+                        <id>proguard-process</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>proguard</goal>
+                        </goals>
+                        <configuration>
+                            <injar>${project.build.finalName}.jar</injar>
+                            <!-- Exclude module-info.class so the output JAR is non-modular;
+                                 moditect will add the final runtime module-info in the next step -->
+                            <inFilter>!module-info.class</inFilter>
+                            <outjar>${project.build.finalName}-proguarded.jar</outjar>
+                            <obfuscate>false</obfuscate>
+                            <proguardInclude>${project.basedir}/proguard.cfg</proguardInclude>
+                            <includeDependency>true</includeDependency>
+                            <includeDependencyInjar>false</includeDependencyInjar>
+                            <!-- JDK and JavaFX libraryjars are in proguard.cfg using <java.home> variable
+                                 to handle the spaces in "C:\Program Files\Zulu\zulu-21" correctly -->
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- STEP 5: moditect — add module-info to non-modular JARs and replace
+                 the compile-time module-info in the ProGuarded app JAR with the final
+                 runtime version (uses com.mysql.cj instead of mysql.connector.j). -->
+            <plugin>
+                <groupId>org.moditect</groupId>
+                <artifactId>moditect-maven-plugin</artifactId>
+                <version>${moditect.version}</version>
+                <executions>
+                    <execution>
+                        <id>add-module-infos</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>add-module-info</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/modules</outputDirectory>
+                            <overwriteExistingFiles>true</overwriteExistingFiles>
+                            <jvmVersion>21</jvmVersion>
+                            <modules>
+
+                                <!-- Oracle JDBC (adds module-info; keeps open for reflection) -->
+                                <module>
+                                    <artifact>
+                                        <groupId>com.oracle.database.jdbc</groupId>
+                                        <artifactId>ojdbc11</artifactId>
+                                        <version>21.9.0.0</version>
+                                    </artifact>
+                                    <moduleInfoSource>
+                                        open module com.oracle.database.jdbc {
+                                            requires java.sql;
+                                            requires java.logging;
+                                            requires java.naming;
+                                            requires java.management;
+                                            requires java.transaction.xa;
+                                            requires java.xml;
+                                            requires java.security.jgss;
+                                            exports oracle.jdbc;
+                                            exports oracle.sql;
+                                            exports oracle.jdbc.pool;
+                                            exports oracle.jdbc.datasource;
+                                            exports oracle.jdbc.xa;
+                                            exports oracle.jdbc.logging.annotations;
+                                            exports oracle.jdbc.logging.runtime;
+                                        }
+                                    </moduleInfoSource>
+                                </module>
+
+                                <!-- MySQL Connector/J (renamed to com.mysql.cj for clean module name) -->
+                                <module>
+                                    <artifact>
+                                        <groupId>com.mysql</groupId>
+                                        <artifactId>mysql-connector-j</artifactId>
+                                        <version>8.3.0</version>
+                                    </artifact>
+                                    <moduleInfoSource>
+                                        open module com.mysql.cj {
+                                            requires java.sql;
+                                            requires java.logging;
+                                            requires java.naming;
+                                            requires java.transaction.xa;
+                                            requires static com.google.protobuf;
+                                            exports com.mysql.cj;
+                                            exports com.mysql.cj.jdbc;
+                                            exports com.mysql.cj.exceptions;
+                                            exports com.mysql.cj.conf;
+                                        }
+                                    </moduleInfoSource>
+                                </module>
+
+                                <!-- Protobuf (transitive dep of mysql-connector-j; optional at runtime) -->
+                                <module>
+                                    <artifact>
+                                        <groupId>com.google.protobuf</groupId>
+                                        <artifactId>protobuf-java</artifactId>
+                                        <version>3.25.1</version>
+                                    </artifact>
+                                    <moduleInfoSource>
+                                        open module com.google.protobuf {
+                                            requires java.logging;
+                                            exports com.google.protobuf;
+                                            exports com.google.protobuf.compiler;
+                                        }
+                                    </moduleInfoSource>
+                                </module>
+
+                                <!-- App JAR: ProGuarded JAR gets final runtime module-info.
+                                     mysql.connector.j (compile-time) replaced by com.mysql.cj. -->
+                                <module>
+                                    <file>${project.build.directory}/${project.build.finalName}-proguarded.jar</file>
+                                    <moduleInfoSource>
+                                        module com.walgreens.rawxmldatapuller {
+                                            requires javafx.controls;
+                                            requires javafx.fxml;
+                                            requires java.sql;
+                                            requires java.desktop;
+                                            requires java.logging;
+                                            requires java.naming;
+                                            requires org.slf4j;
+                                            requires ch.qos.logback.classic;
+                                            requires com.oracle.database.jdbc;
+                                            requires com.mysql.cj;
+                                            requires com.jcraft.jsch;
+                                            requires de.jensd.fx.glyphs.fontawesome;
+                                            requires de.jensd.fx.glyphs.commons;
+                                            opens com.walgreens.rawxmldatapuller            to javafx.graphics, javafx.fxml;
+                                            opens com.walgreens.rawxmldatapuller.controller to javafx.fxml;
+                                            opens com.walgreens.rawxmldatapuller.model      to javafx.base, javafx.fxml;
+                                            opens com.walgreens.rawxmldatapuller.service    to javafx.fxml;
+                                            opens com.walgreens.rawxmldatapuller.ui         to javafx.fxml;
+                                            opens com.walgreens.rawxmldatapuller.util       to javafx.fxml;
+                                            exports com.walgreens.rawxmldatapuller;
+                                        }
+                                    </moduleInfoSource>
+                                </module>
+
+                            </modules>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- STEP 6 and 7: jlink then jpackage via exec-maven-plugin -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>3.3.0</version>
+                <executions>
+
+                    <!-- STEP 6a: Remove stale jlink output dir so jlink does not fail on second run -->
+                    <execution>
+                        <id>clean-jlink-dir</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>cmd</executable>
+                            <arguments>
+                                <argument>/c</argument>
+                                <argument>if exist "${project.build.directory}\jlink-runtime" rmdir /s /q "${project.build.directory}\jlink-runtime"</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+
+                    <!-- STEP 6b: jlink builds a JRE-only image (JDK + JavaFX). App JARs stay in
+                         target/modules and are served on the classpath by jpackage via the input flag.
+                         Classpath mode avoids JPMS resource-encapsulation issues with FXMLLoader. -->
+                    <execution>
+                        <id>jlink</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>jlink</executable>
+                            <workingDirectory>${project.build.directory}</workingDirectory>
+                            <arguments>
+                                <argument>--module-path</argument>
+                                <argument>${javafx.jmods}</argument>
+                                <argument>--add-modules</argument>
+                                <argument>java.base,java.sql,java.xml,java.desktop,java.logging,java.naming,java.management,java.transaction.xa,java.security.jgss,java.prefs,java.compiler,jdk.crypto.ec,jdk.localedata,javafx.controls,javafx.fxml,javafx.graphics,javafx.base,javafx.media,javafx.swing</argument>
+                                <argument>--output</argument>
+                                <argument>${project.build.directory}/jlink-runtime</argument>
+                                <argument>--no-header-files</argument>
+                                <argument>--no-man-pages</argument>
+                                <argument>--strip-debug</argument>
+                                <argument>--compress=1</argument>
+                                <argument>--ignore-signing-information</argument>
+                                <argument>--bind-services</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+
+                    <!-- STEP 7a: Remove stale installer dir so jpackage does not fail on second run -->
+                    <execution>
+                        <id>clean-installer-dir</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>cmd</executable>
+                            <arguments>
+                                <argument>/c</argument>
+                                <argument>if exist "${project.build.directory}\installer" rmdir /s /q "${project.build.directory}\installer"</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+
+                    <!-- STEP 7b: jpackage — create portable Windows app-image (folder + .exe launcher).
+                         app-image type requires no WiX; produces Raw-Xml-Data-Puller.exe inside
+                         target/installer/Raw-Xml-Data-Puller/ alongside the bundled JRE. -->
+                    <execution>
+                        <id>jpackage</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>jpackage</executable>
+                            <workingDirectory>${project.build.directory}</workingDirectory>
+                            <arguments>
+                                <argument>--type</argument>
+                                <argument>app-image</argument>
+                                <argument>--runtime-image</argument>
+                                <argument>${project.build.directory}/jlink-runtime</argument>
+                                <!-- Classpath mode: input dir has the app + all dep JARs.
+                                     ALL-MODULE-PATH exposes the bundled JavaFX modules to the unnamed module. -->
+                                <argument>--input</argument>
+                                <argument>${project.build.directory}/modules</argument>
+                                <argument>--main-jar</argument>
+                                <argument>${project.build.finalName}-proguarded.jar</argument>
+                                <argument>--main-class</argument>
+                                <argument>com.walgreens.rawxmldatapuller.Launcher</argument>
+                                <argument>--java-options</argument>
+                                <argument>--add-modules=ALL-MODULE-PATH</argument>
+                                <argument>--name</argument>
+                                <argument>Raw-Xml-Data-Puller</argument>
+                                <argument>--app-version</argument>
+                                <argument>1.0</argument>
+                                <argument>--vendor</argument>
+                                <argument>Walgreens Pharmacy Systems</argument>
+                                <argument>--dest</argument>
+                                <argument>${project.build.directory}/installer</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+
+                </executions>
+            </plugin>
+
+        </plugins>
+    </build>
+
+</project>

@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.*?>
+
+<!--
+  Two-panel login screen.
+  Left  : branded gradient panel with decorative shapes.
+  Right : clean white form panel, centered vertically.
+  Root HBox fills the loginOverlay StackPane (full window).
+-->
+<HBox xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.walgreens.rawxmldatapuller.controller.LoginController"
+      styleClass="login-split-root">
+
+    <!-- ═══════════════════════════════════════════════════
+         LEFT  — Brand / illustration panel
+         ═══════════════════════════════════════════════════ -->
+    <StackPane styleClass="login-brand-panel" HBox.hgrow="ALWAYS">
+
+        <!-- Decorative rings and dots (non-interactive layer) -->
+        <AnchorPane mouseTransparent="true">
+
+            <!-- Large ring — bleeds off top-right corner -->
+            <Region styleClass="deco-ring-xl"
+                    AnchorPane.topAnchor="-90" AnchorPane.rightAnchor="-90"/>
+
+            <!-- Medium ring — left-centre -->
+            <Region styleClass="deco-ring-md"
+                    AnchorPane.topAnchor="160" AnchorPane.leftAnchor="-55"/>
+
+            <!-- Small ring — mid-right -->
+            <Region styleClass="deco-ring-sm"
+                    AnchorPane.topAnchor="300" AnchorPane.rightAnchor="24"/>
+
+            <!-- Teal accent dots — pinned to top corners, clear of the centred logo -->
+            <Region styleClass="deco-dot-teal"
+                    AnchorPane.topAnchor="38" AnchorPane.leftAnchor="72"/>
+            <Region styleClass="deco-dot-teal"
+                    AnchorPane.topAnchor="28" AnchorPane.rightAnchor="48"/>
+            <Region styleClass="deco-dot-teal-lg"
+                    AnchorPane.bottomAnchor="52" AnchorPane.leftAnchor="44"/>
+
+            <!-- White accent dots — below centre, away from logo -->
+            <Region styleClass="deco-dot-white"
+                    AnchorPane.bottomAnchor="200" AnchorPane.leftAnchor="110"/>
+            <Region styleClass="deco-dot-white"
+                    AnchorPane.bottomAnchor="130" AnchorPane.rightAnchor="90"/>
+
+            <!-- Hollow orbit ring — bottom -->
+            <Region styleClass="deco-ring-orbit"
+                    AnchorPane.bottomAnchor="-130" AnchorPane.rightAnchor="-30"/>
+        </AnchorPane>
+
+        <!-- Brand content — logo + text as one centred group, logo 10px above text -->
+        <VBox alignment="CENTER" spacing="0">
+            <padding><Insets right="32" bottom="40" left="32"/></padding>
+
+            <!-- Full Walgreens logo — visible against the lightened gradient -->
+            <HBox alignment="CENTER">
+                <ImageView fitWidth="300" fitHeight="95" preserveRatio="true" smooth="true">
+                    <image><Image url="@/images/Walgreens-Full-Logo.png"/></image>
+                </ImageView>
+            </HBox>
+
+            <!-- Tagline + subtitle -->
+            <VBox alignment="CENTER" spacing="12">
+                <VBox spacing="4" alignment="CENTER">
+                    <Label text="eRx Raw XML" styleClass="brand-heading"     textAlignment="CENTER"/>
+                    <Label text="Data Puller"  styleClass="brand-heading-sub" textAlignment="CENTER"/>
+                </VBox>
+                <Label text="Secure, fast access to pharmacy eRx&#xA;data for Walgreens internal teams."
+                       styleClass="brand-subtitle" wrapText="true" maxWidth="300"
+                       textAlignment="CENTER" alignment="CENTER"/>
+            </VBox>
+
+        </VBox>
+
+    </StackPane>
+
+    <!-- ═══════════════════════════════════════════════════
+         RIGHT  — Login form panel
+         ═══════════════════════════════════════════════════ -->
+    <VBox styleClass="login-form-panel" HBox.hgrow="ALWAYS" alignment="CENTER" spacing="0">
+
+        <!-- Centred card (maxWidth keeps it from over-stretching on large windows) -->
+        <VBox alignment="CENTER" spacing="32" maxWidth="380">
+
+            <!-- Logo + welcome header -->
+            <VBox alignment="CENTER" spacing="14">
+                <StackPane styleClass="login-logo-box" alignment="CENTER">
+                    <ImageView fitWidth="48" fitHeight="48" preserveRatio="true" smooth="true">
+                        <image><Image url="@/images/Walgreens-Logo.png"/></image>
+                    </ImageView>
+                </StackPane>
+                <VBox alignment="CENTER" spacing="5">
+                    <Label text="Hello! Welcome back" styleClass="login-welcome"/>
+                    <Label text="Sign in to continue to Raw XML Data Puller"
+                           styleClass="login-form-subtitle"/>
+                </VBox>
+            </VBox>
+
+            <!-- Form fields -->
+            <VBox spacing="16">
+                <VBox spacing="6">
+                    <Label text="Username" styleClass="field-label"/>
+                    <TextField fx:id="usernameField" styleClass="input-field"
+                               promptText="Enter your username"/>
+                </VBox>
+
+                <VBox spacing="6">
+                    <Label text="Password" styleClass="field-label"/>
+                    <HBox spacing="0" alignment="CENTER_LEFT">
+                        <PasswordField fx:id="passwordField" styleClass="input-field"
+                                       promptText="Enter your password" HBox.hgrow="ALWAYS"/>
+                        <TextField fx:id="passwordFieldTxt" styleClass="input-field"
+                                   promptText="Enter your password" HBox.hgrow="ALWAYS"
+                                   visible="false" managed="false"/>
+                        <Button fx:id="pwdToggleBtn" onAction="#togglePasswordVisibility"
+                                focusTraversable="false"
+                                style="-fx-background-color: transparent; -fx-border-color: transparent; -fx-cursor: hand; -fx-padding: 6 10 6 10;"/>
+                    </HBox>
+                </VBox>
+
+                <Label fx:id="errorLabel" styleClass="login-error"
+                       wrapText="true" visible="false" managed="false"/>
+
+                <!-- Sign In button row -->
+                <HBox alignment="CENTER_RIGHT" spacing="10">
+                    <ProgressIndicator fx:id="loginProgress" styleClass="progress-ring"
+                                       maxHeight="22" maxWidth="22"
+                                       visible="false" managed="false"/>
+                    <Button fx:id="loginBtn" text="Sign In" styleClass="login-btn"
+                            onAction="#handleLogin" defaultButton="true"
+                            maxWidth="Infinity" HBox.hgrow="ALWAYS"/>
+                </HBox>
+            </VBox>
+
+            <!-- Footer -->
+            <Label text="Walgreens Pharmacy Systems · Internal Use Only"
+                   styleClass="login-footer-note" alignment="CENTER"/>
+
+        </VBox>
+    </VBox>
+
+</HBox>

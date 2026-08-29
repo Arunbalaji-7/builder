@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.*?>
+
+<!--
+  Single-window application shell.
+  During login  : only loginOverlay (StackPane) is visible — fills the full window.
+  After login   : mainLayout (BorderPane) is shown; loginOverlay is hidden.
+  The sidebar on the left switches content views (Search / Profile / Admin).
+  Settings page has been removed.
+-->
+<StackPane xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="com.walgreens.rawxmldatapuller.controller.AppShellController"
+           fx:id="shellRoot">
+
+    <!-- ════ LOGIN OVERLAY ════════════════════════════════════════════ -->
+    <StackPane fx:id="loginOverlay" styleClass="login-overlay"/>
+
+    <!-- ════ MAIN APP LAYOUT ══════════════════════════════════════════ -->
+    <BorderPane fx:id="mainLayout" visible="false" managed="false">
+
+        <!-- LEFT: Sidebar / Activity Bar -->
+        <left>
+            <VBox styleClass="sidebar">
+
+                <!-- Logo cap — same height as the app header -->
+                <HBox styleClass="sidebar-logo" alignment="CENTER">
+                    <padding><Insets top="8" bottom="8" left="12" right="12"/></padding>
+                    <ImageView fitWidth="148" fitHeight="42" preserveRatio="true"
+                               smooth="true" pickOnBounds="true">
+                        <image>
+                            <Image url="@/images/Walgreens-Logo.png"/>
+                        </image>
+                    </ImageView>
+                </HBox>
+
+                <!-- Navigation items (fill available vertical space) -->
+                <VBox VBox.vgrow="ALWAYS" spacing="2">
+                    <padding><Insets top="10" right="8" bottom="10" left="8"/></padding>
+                    <Button fx:id="navSearch"     text="🔍  Search"      styleClass="nav-btn"
+                            onAction="#showSearch"     maxWidth="Infinity"/>
+                    <Button fx:id="navProfile"    text="👤  Profile"     styleClass="nav-btn"
+                            onAction="#showProfile"    maxWidth="Infinity"/>
+                    <Button fx:id="navUserManual" text="📖  User Manual"  styleClass="nav-btn"
+                            onAction="#showUserManual" maxWidth="Infinity"/>
+                    <Button fx:id="navAdmin"      text="🛡  Admin"        styleClass="nav-btn"
+                            onAction="#showAdmin"      maxWidth="Infinity"
+                            visible="false" managed="false"/>
+                </VBox>
+
+                <!-- Theme toggle + Logout pinned to sidebar bottom -->
+                <VBox spacing="2">
+                    <padding><Insets top="8" right="8" bottom="12" left="8"/></padding>
+                    <Button fx:id="darkToggleBtn" text="🌙  Night Vision" styleClass="nav-btn"
+                            onAction="#toggleTheme" maxWidth="Infinity"/>
+                    <Button fx:id="logoutBtn" styleClass="nav-btn"
+                            onAction="#handleLogout" maxWidth="Infinity"/>
+                </VBox>
+            </VBox>
+        </left>
+
+        <!-- CENTER: App header + swappable content area + footer -->
+        <center>
+            <VBox styleClass="root-container">
+
+                <!-- App header (always visible when logged in) -->
+                <HBox styleClass="app-header" alignment="BASELINE_LEFT" spacing="8">
+                    <Label text="Raw XML Data Puller" styleClass="logo-title"/>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Label fx:id="shellUserLabel" styleClass="user-name-label"/>
+                </HBox>
+
+                <!-- Content area — views are swapped in here by AppShellController -->
+                <StackPane fx:id="contentArea" VBox.vgrow="ALWAYS"/>
+
+                <!-- Footer -->
+                <HBox styleClass="app-footer" alignment="CENTER_LEFT">
+                    <Label text="Raw XML Data Puller  v1.0" styleClass="footer-label"/>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Label text="Walgreens · Pharmacy Systems" styleClass="footer-label"/>
+                </HBox>
+            </VBox>
+        </center>
+    </BorderPane>
+
+</StackPane>

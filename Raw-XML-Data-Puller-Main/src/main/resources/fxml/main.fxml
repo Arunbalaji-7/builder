@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<!--
+  Query / Search view — embedded in AppShellController's contentArea StackPane.
+  Terminal / execution log removed for a clean Postman-style output experience.
+  A loading overlay is shown while data is being fetched.
+-->
+<VBox xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.walgreens.rawxmldatapuller.controller.MainController"
+      styleClass="root-container" spacing="0">
+
+    <!-- DATABASE STATUS BAR -->
+    <HBox styleClass="db-status-bar" alignment="CENTER_LEFT" spacing="24">
+        <Label fx:id="dbStatusHeader" text="DB STATUS" styleClass="db-status-header"/>
+        <HBox spacing="7" alignment="CENTER_LEFT">
+            <Region fx:id="erxDbDot" styleClass="db-dot-checking" prefWidth="10" prefHeight="10"/>
+            <Label fx:id="erxDbLabel" text="eRx DB: Checking..." styleClass="db-status-text"/>
+        </HBox>
+        <HBox spacing="7" alignment="CENTER_LEFT">
+            <Region fx:id="icplusDbDot" styleClass="db-dot-checking" prefWidth="10" prefHeight="10"/>
+            <Label fx:id="icplusDbLabel" text="IC+ DB: Checking..." styleClass="db-status-text"/>
+        </HBox>
+        <HBox spacing="7" alignment="CENTER_LEFT">
+            <Region fx:id="visionDbDot" styleClass="db-dot-checking" prefWidth="10" prefHeight="10"/>
+            <Label fx:id="visionDbLabel" text="Vision DB: Checking..." styleClass="db-status-text"/>
+        </HBox>
+        <Region HBox.hgrow="ALWAYS"/>
+        <Label fx:id="statusLabel" styleClass="status-bar-label" text="Ready"/>
+        <ProgressIndicator fx:id="progressIndicator" styleClass="progress-ring"
+                           maxHeight="20" maxWidth="20" visible="false" managed="false"/>
+        <Button fx:id="refreshBtn" text="Refresh" styleClass="refresh-db-btn" onAction="#refreshDbStatus"/>
+    </HBox>
+
+    <!-- CONTENT WRAPPER: StackPane allows the loading overlay to sit on top -->
+    <StackPane VBox.vgrow="ALWAYS">
+
+        <!-- MAIN SCROLL CONTENT -->
+        <ScrollPane fitToWidth="true" styleClass="content-scroll">
+            <VBox spacing="14" styleClass="content-area">
+                <padding><Insets top="16" right="20" bottom="20" left="20"/></padding>
+
+                <!-- INPUT CARD -->
+                <VBox styleClass="card" spacing="14">
+                    <Label text="Search" styleClass="card-title"/>
+
+                    <HBox spacing="16" alignment="CENTER_LEFT">
+                        <Label text="Search by:" styleClass="field-label"/>
+                        <RadioButton fx:id="erxModeRadio"   text="eRx Message ID"     styleClass="mode-radio"/>
+                        <RadioButton fx:id="rxNbrModeRadio" text="Rx Nbr + Store Nbr" styleClass="mode-radio"/>
+                    </HBox>
+
+                    <Separator/>
+
+                    <HBox fx:id="erxInputPane" spacing="10" alignment="TOP_LEFT">
+                        <Label text="eRx Message ID:" styleClass="field-label" minWidth="140"
+                               style="-fx-padding: 8 0 0 0;"/>
+                        <VBox spacing="5" HBox.hgrow="ALWAYS">
+                            <TextField fx:id="erxMsgIdField"
+                                       promptText="Enter eRx Message ID"
+                                       styleClass="input-field"/>
+                            <Label text="💡 For multiple IDs, separate them with commas — e.g. MSG001, MSG002, MSG003"
+                                   styleClass="input-hint"/>
+                        </VBox>
+                    </HBox>
+
+                    <HBox fx:id="rxNbrInputPane" spacing="10" alignment="CENTER_LEFT"
+                          visible="false" managed="false">
+                        <Label text="Rx Number:" styleClass="field-label" minWidth="140"/>
+                        <TextField fx:id="rxNbrField" promptText="Rx Number"
+                                   styleClass="input-field" prefWidth="220"/>
+                        <Label text="Store Number:" styleClass="field-label" minWidth="120"/>
+                        <TextField fx:id="storeNbrField" promptText="Store Number"
+                                   styleClass="input-field" prefWidth="180"/>
+                    </HBox>
+
+                    <HBox alignment="CENTER_RIGHT" spacing="8">
+                        <Button text="Clear All" styleClass="test-btn" onAction="#handleClearAll"/>
+                        <Button fx:id="searchBtn" text="Search" styleClass="search-btn"
+                                onAction="#handleSearch" defaultButton="true"/>
+                    </HBox>
+                </VBox>
+
+                <!-- FAILURE PANE -->
+                <VBox fx:id="failurePane" styleClass="failure-card" spacing="12"
+                      visible="false" managed="false">
+                    <Label text="Unable to Retrieve Data" styleClass="failure-title"/>
+                    <Label fx:id="failureMessageLabel" styleClass="failure-message" wrapText="true"/>
+                    <HBox spacing="14" alignment="CENTER_LEFT">
+                        <Hyperlink fx:id="sopLink" text="View SOP Documentation"
+                                   styleClass="link-btn-secondary" onAction="#openSopLink"/>
+                        <Hyperlink fx:id="incidentLink" text="Create Incident with eRx Team"
+                                   styleClass="link-btn-danger" onAction="#openIncidentLink"/>
+                    </HBox>
+                </VBox>
+
+                <!-- XML OUTPUT CARD — zero padding so TabPane fills edge-to-edge -->
+                <VBox fx:id="outputCard" styleClass="card output-section" spacing="0"
+                      visible="false" managed="false" VBox.vgrow="ALWAYS"
+                      style="-fx-padding: 0;">
+
+                    <!-- Toolbar sits above the tab bar -->
+                    <HBox styleClass="xml-output-toolbar" alignment="CENTER_LEFT" spacing="10">
+                        <padding><Insets top="12" right="16" bottom="12" left="16"/></padding>
+                        <Label text="Raw XML Output" styleClass="card-title"/>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <Button fx:id="clearOutputBtn" text="Clear" styleClass="terminal-clear-btn"
+                                onAction="#handleClearOutput"/>
+                        <Separator orientation="VERTICAL" style="-fx-padding: 0 4 0 4;"/>
+                        <Button fx:id="copyXmlBtn" text="Copy" styleClass="copy-btn"
+                                onAction="#copyXml" disable="true"/>
+                        <Button fx:id="exportTxtBtn" text="Export .txt"
+                                styleClass="export-btn" onAction="#exportTxt" disable="true"/>
+                        <Button fx:id="exportXmlBtn" text="Export .xml"
+                                styleClass="export-btn-primary" onAction="#exportXml" disable="true"/>
+                    </HBox>
+
+                    <!-- VS Code-style tab pane — one tab per MSG ID -->
+                    <TabPane fx:id="xmlTabPane" styleClass="xml-tab-pane"
+                             VBox.vgrow="ALWAYS" tabClosingPolicy="ALL_TABS"
+                             minHeight="320"/>
+                </VBox>
+
+            </VBox>
+        </ScrollPane>
+
+        <!-- LOADING OVERLAY — shown while a search is in progress -->
+        <VBox fx:id="loadingOverlay" visible="false" managed="false"
+              alignment="CENTER" spacing="18" styleClass="loading-overlay"
+              maxWidth="Infinity" maxHeight="Infinity">
+            <ProgressIndicator styleClass="search-progress" prefWidth="56" prefHeight="56"/>
+            <Label text="Fetching data…" styleClass="loading-label"/>
+        </VBox>
+
+    </StackPane>
+
+</VBox>

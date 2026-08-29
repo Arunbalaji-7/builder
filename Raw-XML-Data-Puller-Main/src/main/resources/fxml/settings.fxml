@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.walgreens.rawxmldatapuller.controller.SettingsController"
+      styleClass="root-container" spacing="0">
+
+    <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS" styleClass="content-scroll">
+        <VBox spacing="14" styleClass="content-area">
+            <padding><Insets top="16" right="20" bottom="20" left="20"/></padding>
+
+            <!-- DB Connection Status (read-only) -->
+            <VBox styleClass="card" spacing="12">
+                <HBox alignment="CENTER_LEFT" spacing="10">
+                    <Label text="Database Connections" styleClass="card-title" HBox.hgrow="ALWAYS"/>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Button text="↻  Re-test" styleClass="test-btn" onAction="#testAllConnections"/>
+                </HBox>
+                <Label text="DB credentials are managed via Admin Panel → Database Settings. Values from application.properties are used as defaults on first launch."
+                       styleClass="card-subtitle" wrapText="true"/>
+
+                <GridPane hgap="12" vgap="10">
+                    <columnConstraints>
+                        <ColumnConstraints minWidth="100"/>
+                        <ColumnConstraints hgrow="ALWAYS" fillWidth="true"/>
+                        <ColumnConstraints minWidth="10" prefWidth="10"/>
+                        <ColumnConstraints hgrow="ALWAYS"/>
+                    </columnConstraints>
+
+                    <!-- eRx DB row -->
+                    <Label text="eRx DB:" GridPane.columnIndex="0" GridPane.rowIndex="0" styleClass="field-label"/>
+                    <Label fx:id="erxDbInfo" GridPane.columnIndex="1" GridPane.rowIndex="0" styleClass="db-info-label"/>
+                    <Region fx:id="erxStatusDot"    GridPane.columnIndex="2" GridPane.rowIndex="0" styleClass="dot-checking" prefWidth="10" prefHeight="10"/>
+                    <Label  fx:id="erxStatusLabel"  GridPane.columnIndex="3" GridPane.rowIndex="0" styleClass="db-status-text"/>
+
+                    <!-- IC+ DB row -->
+                    <Label text="IC+ DB:" GridPane.columnIndex="0" GridPane.rowIndex="1" styleClass="field-label"/>
+                    <Label fx:id="icplusDbInfo" GridPane.columnIndex="1" GridPane.rowIndex="1" styleClass="db-info-label"/>
+                    <Region fx:id="icplusStatusDot"    GridPane.columnIndex="2" GridPane.rowIndex="1" styleClass="dot-checking" prefWidth="10" prefHeight="10"/>
+                    <Label  fx:id="icplusStatusLabel"  GridPane.columnIndex="3" GridPane.rowIndex="1" styleClass="db-status-text"/>
+
+                    <!-- Vision DB row -->
+                    <Label text="Vision DB:" GridPane.columnIndex="0" GridPane.rowIndex="2" styleClass="field-label"/>
+                    <Label fx:id="visionDbInfo" GridPane.columnIndex="1" GridPane.rowIndex="2" styleClass="db-info-label"/>
+                    <Region fx:id="visionStatusDot"    GridPane.columnIndex="2" GridPane.rowIndex="2" styleClass="dot-checking" prefWidth="10" prefHeight="10"/>
+                    <Label  fx:id="visionStatusLabel"  GridPane.columnIndex="3" GridPane.rowIndex="2" styleClass="db-status-text"/>
+                </GridPane>
+
+                <Button text="Reload Config" styleClass="test-btn"
+                        onAction="#handleReloadConfig"/>
+            </VBox>
+
+            <!-- SSH Configuration -->
+            <VBox styleClass="card" spacing="10">
+                <Label text="SSH Configuration" styleClass="card-title"/>
+                <Label text="Managed via Admin Panel → System tab. Click Reload Config to refresh."
+                       styleClass="card-subtitle"/>
+                <GridPane hgap="12" vgap="8">
+                    <columnConstraints>
+                        <ColumnConstraints minWidth="100"/>
+                        <ColumnConstraints hgrow="ALWAYS" fillWidth="true"/>
+                    </columnConstraints>
+                    <Label fx:id="sshServerLabel" text="Server:" GridPane.columnIndex="0" GridPane.rowIndex="0" styleClass="field-label"/>
+                    <TextField fx:id="sshServer" GridPane.columnIndex="1" GridPane.rowIndex="0"
+                               styleClass="input-field,input-field-readonly" editable="false"/>
+                    <Label text="Port:" GridPane.columnIndex="0" GridPane.rowIndex="1" styleClass="field-label"/>
+                    <TextField fx:id="sshPort" GridPane.columnIndex="1" GridPane.rowIndex="1"
+                               styleClass="input-field,input-field-readonly" editable="false" prefWidth="100"/>
+                </GridPane>
+            </VBox>
+
+            <!-- Application Links -->
+            <VBox styleClass="card" spacing="10">
+                <Label text="Application Links" styleClass="card-title"/>
+                <Label text="Managed via Admin Panel → System tab. Click Reload Config to refresh."
+                       styleClass="card-subtitle"/>
+                <GridPane hgap="12" vgap="8">
+                    <columnConstraints>
+                        <ColumnConstraints minWidth="100"/>
+                        <ColumnConstraints hgrow="ALWAYS" fillWidth="true"/>
+                    </columnConstraints>
+                    <Label text="SOP URL:" GridPane.columnIndex="0" GridPane.rowIndex="0" styleClass="field-label"/>
+                    <TextField fx:id="sopLinkField" GridPane.columnIndex="1" GridPane.rowIndex="0"
+                               styleClass="input-field,input-field-readonly" editable="false"/>
+                    <Label text="Incident URL:" GridPane.columnIndex="0" GridPane.rowIndex="1" styleClass="field-label"/>
+                    <TextField fx:id="incidentLinkField" GridPane.columnIndex="1" GridPane.rowIndex="1"
+                               styleClass="input-field,input-field-readonly" editable="false"/>
+                </GridPane>
+            </VBox>
+
+            <!-- Application Logs -->
+            <VBox styleClass="card" spacing="10">
+                <Label text="Application Logs" styleClass="card-title"/>
+                <Label fx:id="logFilePathLabel" styleClass="card-subtitle" wrapText="true"/>
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <Button text="View Logs" styleClass="test-btn" onAction="#handleViewLogs"/>
+                    <Button text="Open Log Folder" styleClass="test-btn" onAction="#handleOpenLogFolder"/>
+                </HBox>
+            </VBox>
+
+        </VBox>
+    </ScrollPane>
+</VBox>
